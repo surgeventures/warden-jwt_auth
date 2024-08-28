@@ -19,6 +19,8 @@ module Warden
   module JWTAuth
     extend Dry::Configurable
 
+    @@jwks = nil
+
     def symbolize_keys(hash)
       hash.transform_keys(&:to_sym)
     end
@@ -36,7 +38,18 @@ module Warden
       end
     end
 
-    module_function :constantize_values, :symbolize_keys, :upcase_first_items
+    def init_jkws_loader(url)
+      if url
+        @@jwks = JWKS.new(url)
+        JWTAuth.config.algorithm = @@jwks.algo
+      end
+    end
+
+    def self.jwks
+      @@jwks
+    end
+
+    module_function :init_jkws_loader, :constantize_values, :symbolize_keys, :upcase_first_items
 
     # The secret used to encode the token
     setting :secret
@@ -124,6 +137,11 @@ module Warden
     # this value instead.
     setting :default_scope
 
+    # JWKS URL. You know, to fetch keys
+    setting(:jwks_url,
+            default: nil,
+            constructor: ->(value) { init_jkws_loader(value) })
+
     Import = Dry::AutoInject(config)
   end
 end
@@ -141,3 +159,4 @@ require 'warden/jwt_auth/hooks'
 require 'warden/jwt_auth/strategy'
 require 'warden/jwt_auth/middleware'
 require 'warden/jwt_auth/interfaces'
+require 'warden/jwt_auth/jwks'
