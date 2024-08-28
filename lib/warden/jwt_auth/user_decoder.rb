@@ -30,7 +30,14 @@ module Warden
       # @raise [Errors::WrongAud] when encoded aud does not match with aud
       # argument
       def call(token, scope, aud)
+        config = JWTAuth.config
         payload = TokenDecoder.new.call(token)
+
+        if payload_has_no_scope?(payload)
+          raise Errors::MissingScopeWithNoDefaultFallback, 'payload has no scp claim and no default_scope is set' unless config.default_scope
+          scope = payload['scp'] = config.default_scope
+        end
+
         check_valid_claims(payload, scope, aud)
         user = helper.find_user(payload)
         check_valid_user(payload, user, scope)
@@ -41,7 +48,15 @@ module Warden
 
       def check_valid_claims(payload, scope, aud)
         raise Errors::WrongScope, 'wrong scope' unless helper.scope_matches?(payload, scope)
-        raise Errors::WrongAud, 'wrong aud' unless helper.aud_matches?(payload, aud)
+
+        if aud.nil? && !payload['aud'].nil?
+          raise Errors::MissingAudHeaderWithNoFallback, 'aud_header is missing and valid_auds setting is unset' unless JWTAuth.config.valid_auds
+          raise Errors::WrongAud, 'aud_header missing and aud claim is not part of the valid_auds setting' unless helper.aud_matches_valid_ones?(payload)
+        else
+          raise Errors::WrongAud, 'wrong aud' unless helper.aud_matches?(payload, aud)
+        end
+
+        scope
       end
 
       def check_valid_user(payload, user, scope)
@@ -49,6 +64,10 @@ module Warden
 
         strategy = revocation_strategies[scope]
         raise Errors::RevokedToken, 'revoked token' if strategy.jwt_revoked?(payload, user)
+      end
+
+      def payload_has_no_scope?(payload)
+        !payload.keys.member?('scp')
       end
     end
   end

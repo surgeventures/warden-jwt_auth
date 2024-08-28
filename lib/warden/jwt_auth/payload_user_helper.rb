@@ -17,6 +17,7 @@ module Warden
 
       # Returns whether given scope matches with the one encoded in the payload
       # @param payload [Hash] JWT payload
+      # @param scope [Symbol] A Warden scope
       # @return [Boolean]
       def self.scope_matches?(payload, scope)
         payload['scp'] == scope.to_s
@@ -24,9 +25,17 @@ module Warden
 
       # Returns whether given aud matches with the one encoded in the payload
       # @param payload [Hash] JWT payload
+      # @param aud [String] The aud to match
       # @return [Boolean]
       def self.aud_matches?(payload, aud)
         payload['aud'] == aud
+      end
+
+      # Returns whether given payload's aud claim matches one of the valid_auds setting
+      # @param payload [Hash] JWT payload
+      # @return [Boolean]
+      def self.aud_matches_valid_ones?(payload)
+        JWTAuth.config.valid_auds.include?(payload['aud'])
       end
 
       # Returns whether given issuer matches with the one encoded in the payload
