@@ -7,12 +7,12 @@ require 'warden/jwt_auth/version'
 Gem::Specification.new do |spec|
   spec.name          = 'warden-jwt_auth'
   spec.version       = Warden::JWTAuth::VERSION
-  spec.authors       = ['Marc Busqué']
-  spec.email         = ['marc@lamarciana.com']
+  spec.authors       = ['Marc Busqué', 'Bruno Antunes']
+  spec.email         = ['bruno.antunes@fresha.com']
 
   spec.summary       = 'JWT authentication for Warden.'
   spec.description   = 'JWT authentication for Warden, ORM agnostic and accepting the implementation of token revocation strategies.'
-  spec.homepage      = 'https://github.com/waiting-for-dev/warden-jwt_auth'
+  spec.homepage      = 'https://github.com/surgeventures/warden-jwt_auth'
   spec.license       = 'MIT'
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
