@@ -62,7 +62,7 @@ module Warden
       def check_valid_user(payload, user, scope)
         raise Errors::NilUser, 'nil user' unless user
 
-        strategy = revocation_strategies[scope]
+        strategy = revocation_strategies[scope.to_sym]
         raise Errors::RevokedToken, 'revoked token' if strategy.jwt_revoked?(payload, user)
       end
 
