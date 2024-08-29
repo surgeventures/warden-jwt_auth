@@ -25,6 +25,9 @@ module Warden
 
         success!(user)
       rescue JWT::DecodeError => e
+        if defined?(::Rails)
+          ::Rails.logger.error("JWT decoding failed #{e.message}")
+        end
         fail!(e.message)
       end
 
