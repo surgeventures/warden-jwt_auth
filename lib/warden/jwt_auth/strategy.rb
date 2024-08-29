@@ -18,6 +18,11 @@ module Warden
       def authenticate!
         aud = EnvHelper.aud_header(env)
         user = UserDecoder.new.call(token, scope, aud)
+
+        if defined?(::Rails) && user
+          ::Rails.logger.info("JWT accepted for user #{user.id}")
+        end
+
         success!(user)
       rescue JWT::DecodeError => e
         fail!(e.message)
