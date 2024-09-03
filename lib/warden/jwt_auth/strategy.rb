@@ -20,13 +20,13 @@ module Warden
         user = UserDecoder.new.call(token, scope, aud)
 
         if defined?(::Rails) && user
-          ::Rails.logger.info("JWT accepted for user #{user.id}")
+          ::Rails.logger.warn("JWT accepted for user #{user.id}")
         end
 
         success!(user)
       rescue JWT::DecodeError => e
         if defined?(::Rails)
-          ::Rails.logger.error("JWT decoding failed #{e.message}")
+          ::Rails.logger.warn("JWT decoding failed #{e.message}")
         end
         fail!(e.message)
       end
