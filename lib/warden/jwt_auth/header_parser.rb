@@ -17,8 +17,12 @@ module Warden
         auth = EnvHelper.authorization_header(env)
         return nil unless auth
 
-        method, token = auth.split
-        method == METHOD ? token : nil
+        if JWTAuth.config.raw_header
+          auth
+        else
+          method, token = auth.split
+          method == METHOD ? token : nil
+        end
       end
 
       # Returns a copy of `env` with token added to the header configured through

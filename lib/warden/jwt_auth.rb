@@ -142,6 +142,12 @@ module Warden
             default: nil,
             constructor: ->(value) { init_jkws_loader(value) })
 
+    # If JWT header should be parsed "raw" ie without `Bearer xxxxx` and just `xxxxx`
+    #
+    # @example
+    # [true]
+    setting(:raw_header, default: false)
+
     Import = Dry::AutoInject(config)
   end
 end
