@@ -28,6 +28,8 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'warden', '~> 1.2'
   # for JWKS caching
   spec.add_dependency 'rails', '~> 6'
+  # for logging
+  spec.add_dependency 'rails_semantic_logger', '~> 4.12'
 
   spec.add_development_dependency 'bundler'
   spec.add_development_dependency 'pry-byebug', '~> 3.7'
