@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'warden'
+require 'semantic_logger'
 
 module Warden
   module JWTAuth
@@ -21,13 +22,13 @@ module Warden
         aud = EnvHelper.aud_header(env)
         user = UserDecoder.new.call(token, scope, aud)
 
-        logger.warn("JWT accepted", user: user.id) if user
+        logger.warn('JWT accepted', user: user.id) if user
 
         success!(user)
       rescue JWT::DecodeError => e
-          logger.error("JWT decoding failed", message: e.message)
+        logger.error('JWT decoding failed', message: e.message)
 
-          fail!(e.message)
+        fail!(e.message)
       end
 
       private

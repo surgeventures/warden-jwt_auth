@@ -19,7 +19,7 @@ module Warden
   module JWTAuth
     extend Dry::Configurable
 
-    @@jwks = nil
+    @jwks = nil
 
     def symbolize_keys(hash)
       hash.transform_keys(&:to_sym)
@@ -39,14 +39,18 @@ module Warden
     end
 
     def init_jkws_loader(url)
-      if url
-        @@jwks = JWKS.new(url)
-        JWTAuth.config.algorithm = @@jwks.algo
-      end
+      return unless url
+
+      @jwks = JWKS.new(url)
+      JWTAuth.config.algorithm = @jwks.algo
     end
 
     def self.jwks
-      @@jwks
+      @jwks
+    end
+
+    def jwks
+      self.class.jwks
     end
 
     module_function :init_jkws_loader, :constantize_values, :symbolize_keys, :upcase_first_items

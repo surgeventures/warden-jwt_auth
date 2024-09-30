@@ -7,6 +7,10 @@ module Fixtures
   class User
     include Singleton
 
+    def id
+      1
+    end
+
     def jwt_subject
       '1'
     end

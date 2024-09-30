@@ -27,14 +27,17 @@ module Warden
       # encoded user
       # @raise [Errors::NilUser] when decoded user is nil
       # @raise [Errors::WrongScope] when encoded scope does not match with scope
-      # @raise [Errors::WrongAud] when encoded aud does not match with aud
-      # argument
+      # @raise [Errors::WrongAud] when encoded aud does not match with aud argument
+      # rubocop:disable Metrics/MethodLength
       def call(token, scope, aud)
         config = JWTAuth.config
         payload = TokenDecoder.new.call(token)
 
         if payload_has_no_scope?(payload)
-          raise Errors::MissingScopeWithNoDefaultFallback, 'payload has no scp claim and no default_scope is set' unless config.default_scope
+          unless config.default_scope
+            raise Errors::MissingScopeWithNoDefaultFallback, 'payload has no scp claim and no default_scope is set'
+          end
+
           scope = payload['scp'] = config.default_scope
         end
 
@@ -43,6 +46,7 @@ module Warden
         check_valid_user(payload, user, scope)
         user
       end
+      # rubocop:enable Metrics/MethodLength
 
       private
 
@@ -50,13 +54,24 @@ module Warden
         raise Errors::WrongScope, 'wrong scope' unless helper.scope_matches?(payload, scope)
 
         if aud.nil? && !payload['aud'].nil?
-          raise Errors::MissingAudHeaderWithNoFallback, 'aud_header is missing and valid_auds setting is unset' unless JWTAuth.config.valid_auds
-          raise Errors::WrongAud, 'aud_header missing and aud claim is not part of the valid_auds setting' unless helper.aud_matches_valid_ones?(payload)
+          check_empty_aud_header(payload)
         else
           raise Errors::WrongAud, 'wrong aud' unless helper.aud_matches?(payload, aud)
         end
 
         scope
+      end
+
+      def check_empty_aud_header(payload)
+        unless JWTAuth.config.valid_auds
+          raise Errors::MissingAudHeaderWithNoFallback, 'aud_header is missing and valid_auds setting is unset'
+        end
+
+        # rubocop:disable Style/GuardClause
+        unless helper.aud_matches_valid_ones?(payload)
+          raise Errors::WrongAud, 'aud_header missing and aud claim is not part of the valid_auds setting'
+        end
+        # rubocop:enable Style/GuardClause
       end
 
       def check_valid_user(payload, user, scope)
