@@ -26,18 +26,9 @@ module Warden
       def decode(token, secret)
         if JWTAuth.config.jwks_url
           jwks = Warden::JWTAuth.jwks
-          JWT.decode(token,
-                    secret,
-                    true,
-                    algorithm: jwks.algo,
-                    verify_jti: true,
-                    jwks: jwks.loader)[0]
+          JWT.decode(token, secret, true, algorithm: jwks.algo, verify_jti: true, jwks: jwks.loader)[0]
         else
-          JWT.decode(token,
-                    secret,
-                    true,
-                    algorithm: algorithm,
-                    verify_jti: true)[0]
+          JWT.decode(token, secret, true, algorithm: algorithm, verify_jti: true)[0]
         end
       end
     end

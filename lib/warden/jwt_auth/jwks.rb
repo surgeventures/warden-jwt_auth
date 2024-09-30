@@ -1,18 +1,22 @@
+# frozen_string_literal: true
+
 module Warden
   module JWTAuth
+    # JWKS fetcher class.
+    #
+    # Uses a Rails cache key to store the payload
     class JWKS
-
-      JWKS_CACHE_KEY = "auth/jwks-json".freeze
+      JWKS_CACHE_KEY = 'auth/jwks-json'
 
       def initialize(url)
         @jwks_url = url
       end
 
-      def loader(options={})
+      def loader(options = {})
         jwks(force: options[:invalidate]) || {}
       end
 
-      def algo(key_index=0)
+      def algo(key_index = 0)
         loader[:keys][key_index][:alg]
       end
 
@@ -20,9 +24,7 @@ module Warden
 
       def fetch_jwks
         response = Faraday.get(@jwks_url)
-        if response.status == 200
-          JSON.parse(response.body.to_s)
-        end
+        JSON.parse(response.body.to_s) if response.status == 200
       end
 
       def jwks(force: false)
