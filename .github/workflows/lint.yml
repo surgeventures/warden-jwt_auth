@@ -17,7 +17,7 @@ jobs:
 
     - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
     - name: Set up Ruby ${{ matrix.ruby-version }}
-      uses: ruby/setup-ruby@afeafc3d1ab54a631816aba4c914a0081c12ff2f # v1
+      uses: step-security/setup-ruby@37a6ba0604c7193dff21a6bfe974221525e0b2b8 # v1.321.0
       with:
         ruby-version: 2.7
         bundler-cache: true # 'bundle install' and cache
